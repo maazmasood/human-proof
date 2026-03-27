@@ -1,6 +1,6 @@
 {
   "name": "human-proof",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Privacy-first protocol for hardware-verified human presence",
   "author": "Maaz Masood",
   "license": "MIT",
