@@ -13,13 +13,12 @@
 
 import { EventEmitter } from "node:events";
 import { createHash, randomBytes } from "node:crypto";
-import { HumanProofError, Errors } from "../shared/errors.js";
+import { Errors } from "../shared/errors.js";
 import {
   AttestationType,
   HumanAssertion,
   HumanChallenge,
   HumanityScoreInputs,
-  IHumanProofStore,
   HumanProofConfig,
   StoredCredential,
   TrustTier,
@@ -54,11 +53,11 @@ function now(): number {
 
 function classifyTrustTier(attestationType: AttestationType): TrustTier {
   switch (attestationType) {
-    case "apple":           // Secure Enclave (iPhone/Mac)
-    case "android-key":     // StrongBox / TEE (Pixel, Samsung etc.)
+    case "apple": // Secure Enclave (iPhone/Mac)
+    case "android-key": // StrongBox / TEE (Pixel, Samsung etc.)
       return TrustTier.High;
-    case "tpm":             // Windows Hello TPM 2.0
-    case "packed":          // Most FIDO2 security keys
+    case "tpm": // Windows Hello TPM 2.0
+    case "packed": // Most FIDO2 security keys
       return TrustTier.Standard;
     case "none":
     case "self":
@@ -94,10 +93,12 @@ async function verifySignature(
 ): Promise<boolean> {
   try {
     const { verify, createPublicKey } = await import("node:crypto");
-    
-    // Create a KeyObject from the JWK
-    const key = createPublicKey({ key: publicKeyJwk as any, format: "jwk" });
-    
+
+    const key = createPublicKey({
+      key: publicKeyJwk as unknown as import("node:crypto").JsonWebKey,
+      format: "jwk",
+    });
+
     const clientDataHash = createHash("sha256").update(clientDataJSON).digest();
     const signedData = Buffer.concat([authenticatorData, clientDataHash]);
 
@@ -109,7 +110,7 @@ async function verifySignature(
       key,
       signature
     );
-  } catch (e) {
+  } catch {
     return false;
   }
 }
@@ -139,14 +140,14 @@ function parseAuthenticatorData(authData: Buffer): ParsedAuthData {
   return { rpIdHash: Buffer.from(rpIdHash), userPresent, userVerified, signCount };
 }
 
-  // ─── HumanProof class ──────────────────────────
-  
-  export class HumanProof extends EventEmitter {
-    private config: Required<HumanProofConfig>;
-  
-    constructor(config: HumanProofConfig) {
-      super();
-      this.config = {
+// ─── HumanProof class ──────────────────────────
+
+export class HumanProof extends EventEmitter {
+  private config: Required<HumanProofConfig>;
+
+  constructor(config: HumanProofConfig) {
+    super();
+    this.config = {
       challengeTtlMs: 60_000,
       minTrustTier: TrustTier.Standard,
       enforceSignCount: true,
@@ -176,17 +177,17 @@ function parseAuthenticatorData(authData: Buffer): ParsedAuthData {
         displayName: userDisplayName,
       },
       pubKeyCredParams: [
-        { type: "public-key", alg: -7 },   // ES256 (ECDSA P-256) — universal
-        { type: "public-key", alg: -257 },  // RS256 (RSA PKCS1) — Windows Hello fallback
+        { type: "public-key", alg: -7 }, // ES256 (ECDSA P-256) — universal
+        { type: "public-key", alg: -257 }, // RS256 (RSA PKCS1) — Windows Hello fallback
       ],
       authenticatorSelection: {
         // "platform" = device built-in (FaceID, fingerprint, Windows Hello)
         // Use "cross-platform" to also allow FIDO2 security keys
         authenticatorAttachment: "platform",
-        userVerification: "required",        // enforce biometric/PIN
+        userVerification: "required", // enforce biometric/PIN
         residentKey: "preferred",
       },
-      attestation: "direct",                 // request attestation for trust tier
+      attestation: "direct", // request attestation for trust tier
       timeout: 60_000,
     };
   }
@@ -203,8 +204,8 @@ function parseAuthenticatorData(authData: Buffer): ParsedAuthData {
     attestationType: AttestationType;
     clientDataJSON: string;
     authenticatorData: string;
-    challenge: string;                       // the challenge you issued in step 1
-    origin: string;                          // e.g. "https://example.com"
+    challenge: string; // the challenge you issued in step 1
+    origin: string; // e.g. "https://example.com"
   }): Promise<StoredCredential> {
     try {
       // 1. Verify clientData
@@ -216,7 +217,7 @@ function parseAuthenticatorData(authData: Buffer): ParsedAuthData {
       if (clientData.challenge !== params.challenge) {
         throw Errors.ChallengeMismatch();
       }
-      
+
       if (clientData.origin !== params.origin) {
         throw Errors.Internal(`Origin mismatch: got ${clientData.origin}`);
       }
@@ -229,7 +230,8 @@ function parseAuthenticatorData(authData: Buffer): ParsedAuthData {
       }
 
       if (!authData.userPresent) throw Errors.Internal("User presence flag not set");
-      if (!authData.userVerified) throw Errors.Internal("User verification flag not set — biometric required");
+      if (!authData.userVerified)
+        throw Errors.Internal("User verification flag not set — biometric required");
 
       const trustTier = classifyTrustTier(params.attestationType);
       const credential: StoredCredential = {
@@ -333,7 +335,9 @@ function parseAuthenticatorData(authData: Buffer): ParsedAuthData {
       // 6. Sign count (clone detection)
       if (this.config.enforceSignCount && authData.signCount > 0) {
         if (authData.signCount <= credential.signCount) {
-          throw Errors.Internal(`Sign count regression — possible cloned authenticator (stored: ${credential.signCount}, got: ${authData.signCount})`);
+          throw Errors.Internal(
+            `Sign count regression — possible cloned authenticator (stored: ${credential.signCount}, got: ${authData.signCount})`
+          );
         }
       }
 
@@ -385,7 +389,12 @@ function parseAuthenticatorData(authData: Buffer): ParsedAuthData {
 
     // Attestation type contributes up to 20 points
     const attPoints: Record<AttestationType, number> = {
-      apple: 20, "android-key": 20, tpm: 15, packed: 12, self: 4, none: 0,
+      apple: 20,
+      "android-key": 20,
+      tpm: 15,
+      packed: 12,
+      self: 4,
+      none: 0,
     };
     score += attPoints[inputs.attestationType] ?? 0;
 

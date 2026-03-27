@@ -5,7 +5,7 @@ import type { IHumanProofStore, StoredCredential, HumanChallenge } from "../../s
  * Requires `ioredis` or a compatible client.
  */
 export class RedisStore implements IHumanProofStore {
-  private client: any;
+  private client: any; // eslint-disable-line @typescript-eslint/no-explicit-any
   private prefix: string;
 
   constructor(redisClient: any, options: { prefix?: string } = {}) {

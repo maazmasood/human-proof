@@ -5,7 +5,7 @@ import type { IHumanProofStore, StoredCredential, HumanChallenge } from "../../s
  * Expects a Prisma client with `humanChallenge` and `humanCredential` models.
  */
 export class PrismaStore implements IHumanProofStore {
-  private prisma: any;
+  private prisma: any; // eslint-disable-line @typescript-eslint/no-explicit-any
 
   constructor(prismaClient: any) {
     this.prisma = prismaClient;
@@ -13,14 +13,14 @@ export class PrismaStore implements IHumanProofStore {
 
   async getChallenge(challengeId: string): Promise<HumanChallenge | undefined> {
     const record = await this.prisma.humanChallenge.findUnique({
-      where: { challengeId }
+      where: { challengeId },
     });
     if (!record) return undefined;
     return {
       challengeId: record.challengeId,
       challenge: record.challenge,
       action: record.action,
-      expiresAt: Number(record.expiresAt)
+      expiresAt: Number(record.expiresAt),
     };
   }
 
@@ -28,54 +28,69 @@ export class PrismaStore implements IHumanProofStore {
     await this.prisma.humanChallenge.upsert({
       where: { challengeId: challenge.challengeId },
       update: { ...challenge },
-      create: { ...challenge }
+      create: { ...challenge },
     });
   }
 
   async deleteChallenge(challengeId: string): Promise<void> {
-    await this.prisma.humanChallenge.delete({
-      where: { challengeId }
-    }).catch(() => {}); // Ignore if already deleted
+    await this.prisma.humanChallenge
+      .delete({
+        where: { challengeId },
+      })
+      .catch(() => {}); // Ignore if already deleted
   }
 
   async getCredential(credentialId: string): Promise<StoredCredential | undefined> {
     const record = await this.prisma.humanCredential.findUnique({
-      where: { credentialId }
+      where: { credentialId },
     });
     if (!record) return undefined;
     return {
       ...record,
       publicKeyJwk: JSON.parse(record.publicKeyJwk),
       createdAt: Number(record.createdAt),
-      lastVerifiedAt: Number(record.lastVerifiedAt)
+      lastVerifiedAt: Number(record.lastVerifiedAt),
     } as StoredCredential;
   }
 
   async saveCredential(credential: StoredCredential): Promise<void> {
     const data = {
       ...credential,
-      publicKeyJwk: JSON.stringify(credential.publicKeyJwk)
+      publicKeyJwk: JSON.stringify(credential.publicKeyJwk),
     };
     await this.prisma.humanCredential.upsert({
       where: { credentialId: credential.credentialId },
       update: data,
-      create: data
+      create: data,
     });
   }
 
   async listCredentials(): Promise<StoredCredential[]> {
     const records = await this.prisma.humanCredential.findMany();
-    return records.map((r: any) => ({
-      ...r,
-      publicKeyJwk: JSON.parse(r.publicKeyJwk),
-      createdAt: Number(r.createdAt),
-      lastVerifiedAt: Number(r.lastVerifiedAt)
-    }));
+    return records.map(
+      (r: {
+        credentialId: string;
+        publicKeyJwk: string;
+        alg: number;
+        signCount: number;
+        trustTier: number;
+        attestationType: string;
+        createdAt: Date;
+        lastVerifiedAt: Date;
+      }) => ({
+        ...r,
+        publicKeyJwk: JSON.parse(r.publicKeyJwk),
+        createdAt: Number(r.createdAt),
+        lastVerifiedAt: Number(r.lastVerifiedAt),
+      })
+    );
   }
 
   async deleteCredential(credentialId: string): Promise<void> {
-    await this.prisma.humanCredential.delete({
-      where: { credentialId }
-    }).catch(() => {});
+    await this.prisma.humanCredential
+      .delete({
+        where: { credentialId },
+      })
+      .catch(() => {});
   }
 }

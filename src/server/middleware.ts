@@ -15,17 +15,15 @@
 import type { Request, Response, NextFunction, RequestHandler } from "express";
 import { HumanProof } from "./HumanProof.js";
 import { HumanProofError } from "../shared/errors.js";
-import { HumanAssertion, VerificationResult, TrustTier } from "../shared/types.js";
+import { HumanAssertion, VerificationResult } from "../shared/types.js";
 
 // Augment Express Request so downstream handlers can read verification results
-declare global {
-  namespace Express {
-    interface Request {
-      humanProof?: {
-        result: VerificationResult;
-        credentialId: string;
-      };
-    }
+declare module "express-serve-static-core" {
+  interface Request {
+    humanProof?: {
+      result: VerificationResult;
+      credentialId: string;
+    };
   }
 }
 
@@ -38,7 +36,7 @@ export interface MiddlewareOptions {
 
 /**
  * Creates an Express middleware factory.
- * 
+ *
  * Each call returns a middleware scoped to a specific action,
  * so challenge/assertion pairs are action-bound and cannot be replayed
  * across different protected routes.
@@ -47,38 +45,43 @@ export function createHumanProofMiddleware(
   humanProof: HumanProof,
   options: MiddlewareOptions = {}
 ) {
-  const getOrigin = options.getOrigin ?? ((req) => {
-    const origin = req.headers.origin;
-    if (!origin) throw new Error("Missing Origin header");
-    return origin;
-  });
-
-  const onFailure = options.onFailure ?? ((req, res, result) => {
-    res.status(403).json({
-      error: "human_verification_required",
-      message: result.error ?? "Human presence verification failed",
-      isHuman: false,
+  const getOrigin =
+    options.getOrigin ??
+    ((req) => {
+      const origin = req.headers.origin;
+      if (!origin) throw new Error("Missing Origin header");
+      return origin;
     });
-  });
+
+  const onFailure =
+    options.onFailure ??
+    ((req, res, result) => {
+      res.status(403).json({
+        error: "human_verification_required",
+        message: result.error ?? "Human presence verification failed",
+        isHuman: false,
+      });
+    });
 
   /**
    * Returns middleware that verifies human presence for the given action.
-   * 
+   *
    * Expects the request body (or headers) to contain:
    *   - x-human-proof-challenge-id  (header) or body.humanProof.challengeId
-   *   - x-human-proof-credential-id (header) or body.humanProof.credentialId  
+   *   - x-human-proof-credential-id (header) or body.humanProof.credentialId
    *   - x-human-proof-auth-data     (header) or body.humanProof.authenticatorData
    *   - x-human-proof-client-data   (header) or body.humanProof.clientDataJSON
    *   - x-human-proof-signature     (header) or body.humanProof.signature
    */
-  return function requireHuman(action: string): RequestHandler {
+  return function requireHuman(_action: string): RequestHandler {
     return async (req: Request, res: Response, next: NextFunction) => {
       try {
         const assertion = extractAssertion(req);
         if (!assertion) {
           return onFailure(req, res, {
             isHuman: false,
-            error: "Missing human verification data. Include humanProof fields in the request body.",
+            error:
+              "Missing human verification data. Include humanProof fields in the request body.",
           });
         }
 
@@ -139,12 +142,16 @@ function extractAssertion(req: Request): HumanAssertion | null {
 
 /**
  * Adds the challenge-issuance endpoint to your Express app.
- * 
+ *
  * POST /human-proof/challenge
  * Body: { action: string }
  * Returns: HumanChallenge
  */
-export function mountChallengeEndpoint(app: { post: Function }, humanProof: HumanProof, path = "/human-proof/challenge") {
+export function mountChallengeEndpoint(
+  app: { post: (...args: unknown[]) => unknown },
+  humanProof: HumanProof,
+  path = "/human-proof/challenge"
+) {
   app.post(path, async (req: Request, res: Response) => {
     const action = req.body?.action;
     if (!action || typeof action !== "string") {
@@ -157,11 +164,15 @@ export function mountChallengeEndpoint(app: { post: Function }, humanProof: Huma
 
 /**
  * Adds the enrollment endpoints to your Express app.
- * 
+ *
  * GET  /human-proof/enroll/options?userId=...
  * POST /human-proof/enroll/complete
  */
-export function mountEnrollmentEndpoints(app: { get: Function; post: Function }, humanProof: HumanProof, basePath = "/human-proof") {
+export function mountEnrollmentEndpoints(
+  app: { get: (...args: unknown[]) => unknown; post: (...args: unknown[]) => unknown },
+  humanProof: HumanProof,
+  basePath = "/human-proof"
+) {
   app.get(`${basePath}/enroll/options`, async (req: Request, res: Response) => {
     const userId = req.query.userId as string;
     const displayName = (req.query.displayName as string) || userId;
@@ -183,10 +194,10 @@ export function mountEnrollmentEndpoints(app: { get: Function; post: Function },
       });
     } catch (err) {
       if (err instanceof HumanProofError) {
-          return res.status(err.statusCode).json(err.toJSON());
-        }
-        const message = err instanceof Error ? err.message : "Enrollment failed";
-        res.status(500).json({ success: false, error: "HP_INTERNAL_ERROR", message });
+        return res.status(err.statusCode).json(err.toJSON());
+      }
+      const message = err instanceof Error ? err.message : "Enrollment failed";
+      res.status(500).json({ success: false, error: "HP_INTERNAL_ERROR", message });
     }
   });
 }

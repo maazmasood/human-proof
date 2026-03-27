@@ -22,31 +22,31 @@ export enum HumanAlg {
 
 /** Stored per credential – the only data Human-Proof keeps server-side */
 export interface StoredCredential {
-  credentialId: string;           // base64url-encoded credential ID
-  publicKeyJwk: JsonWebKey;       // COSE public key converted to JWK
-  alg: number;                    // COSE algorithm identifier
-  signCount: number;              // monotonic counter, used to detect clones
+  credentialId: string; // base64url-encoded credential ID
+  publicKeyJwk: JsonWebKey; // COSE public key converted to JWK
+  alg: number; // COSE algorithm identifier
+  signCount: number; // monotonic counter, used to detect clones
   trustTier: TrustTier;
   attestationType: AttestationType;
-  createdAt: number;              // unix ms
-  lastVerifiedAt: number;         // unix ms
+  createdAt: number; // unix ms
+  lastVerifiedAt: number; // unix ms
 }
 
 /** What the server generates per action */
 export interface HumanChallenge {
-  challengeId: string;            // server-side UUID
-  challenge: string;              // base64url random bytes
-  action: string;                 // e.g. "post:create", "vote:submit"
-  expiresAt: number;              // unix ms (short TTL, e.g. 60s)
+  challengeId: string; // server-side UUID
+  challenge: string; // base64url random bytes
+  action: string; // e.g. "post:create", "vote:submit"
+  expiresAt: number; // unix ms (short TTL, e.g. 60s)
 }
 
 /** Passed from client → server to verify human presence */
 export interface HumanAssertion {
   challengeId: string;
   credentialId: string;
-  authenticatorData: string;      // base64url
-  clientDataJSON: string;         // base64url
-  signature: string;              // base64url
+  authenticatorData: string; // base64url
+  clientDataJSON: string; // base64url
+  signature: string; // base64url
 }
 
 /** Result returned by HumanProof.verify() */
@@ -67,11 +67,15 @@ export interface HumanityScoreInputs {
 /** Interface for pluggable storage (e.g. Redis, Mongo, DB) */
 export interface IHumanProofStore {
   saveChallenge(challenge: HumanChallenge): Promise<void> | void;
-  getChallenge(challengeId: string): Promise<HumanChallenge | undefined> | HumanChallenge | undefined;
+  getChallenge(
+    challengeId: string
+  ): Promise<HumanChallenge | undefined> | HumanChallenge | undefined;
   deleteChallenge(challengeId: string): Promise<void> | void;
 
   saveCredential(credential: StoredCredential): Promise<void> | void;
-  getCredential(credentialId: string): Promise<StoredCredential | undefined> | StoredCredential | undefined;
+  getCredential(
+    credentialId: string
+  ): Promise<StoredCredential | undefined> | StoredCredential | undefined;
   listCredentials(): Promise<StoredCredential[]> | StoredCredential[];
   deleteCredential(credentialId: string): Promise<void> | void;
 }
