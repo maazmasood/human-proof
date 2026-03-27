@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { HumanProof } from "../src/server/HumanProof.js";
-import { TrustTier } from "../src/shared/types.js";
+import { TrustTier, AttestationType, IHumanProofStore } from "../src/shared/types.js";
 
 describe("HumanProof", () => {
   let humanProof: HumanProof;
@@ -52,19 +52,19 @@ describe("HumanProof", () => {
       alg: -7,
       signCount: 0,
       trustTier: TrustTier.High,
-      attestationType: "apple" as any,
+      attestationType: "apple" as AttestationType,
       createdAt: Date.now(),
       lastVerifiedAt: Date.now(),
     };
 
     it("should store and retrieve credentials with algorithm info", async () => {
-      await (humanProof as any).config.store.saveCredential(mockCred);
+      await ((humanProof as unknown as { config: { store: IHumanProofStore } }).config.store.saveCredential(mockCred));
       const retrieved = await humanProof.getCredential("test-cid");
       expect(retrieved?.alg).toBe(-7);
     });
 
     it("should fail verification with invalid signature format", async () => {
-      await (humanProof as any).config.store.saveCredential(mockCred);
+      await ((humanProof as unknown as { config: { store: IHumanProofStore } }).config.store.saveCredential(mockCred));
       const challenge = await humanProof.createChallenge("test-action");
       
       const { createHash } = await import("node:crypto");
