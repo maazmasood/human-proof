@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="public/human-proof-logo.png" style="border-radius: 20%; background-color: white;" alt="Human-Proof Logo" width="200" />
+  <img src="Public/human-proof-logo.png" style="border-radius: 20%; background-color: white;" alt="Human-Proof Logo" width="200" />
 </p>
 
 # ⬡ Human-Proof
