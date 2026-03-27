@@ -1,0 +1,74 @@
+{
+  "name": "human-proof",
+  "version": "0.1.0",
+  "description": "Privacy-first protocol for hardware-verified human presence",
+  "author": "Maaz Masood",
+  "license": "MIT",
+  "homepage": "https://github.com/maazmasood/human-proof#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/maazmasood/human-proof.git"
+  },
+  "bugs": {
+    "url": "https://github.com/maazmasood/human-proof/issues"
+  },
+  "keywords": [
+    "webauthn",
+    "fido2",
+    "liveness",
+    "bot-prevention",
+    "privacy",
+    "sdk",
+    "human-verification",
+    "human-proof",
+    "passkeys"
+  ],
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "dev": "node --loader ts-node/esm examples/basic-vanilla/server.ts",
+    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "lint": "eslint src --ext .ts,.js",
+    "format": "prettier --write 'src/**/*.{ts,js}'",
+    "docs:generate": "typedoc --out docs/api src/index.ts"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "peerDependencies": {
+    "react": ">=16.8.0"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.57.2",
+    "@typescript-eslint/parser": "^8.57.2",
+    "eslint": "^10.1.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.5",
+    "prettier": "^3.8.1",
+    "ts-node": "^10.9.2",
+    "tsup": "^8.5.1",
+    "typescript": "^5.3.0",
+    "vitest": "^4.1.2",
+    "@types/react": "^18.0.0",
+    "react": "^18.0.0",
+    "next": "^14.0.0",
+    "typedoc": "^0.25.0"
+  }
+}

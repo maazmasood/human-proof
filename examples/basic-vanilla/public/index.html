@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Human-Proof · Premium Demo</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&family=JetBrains+Mono:wght@300;400&display=swap"
+    rel="stylesheet">
+</head>
+
+<body>
+  <div class="glass-bg"></div>
+
+  <main class="container">
+    <header>
+      <div class="logo">⬡</div>
+      <h1>Human-Proof</h1>
+      <p class="subtitle">Privacy-Preserving Hardware-Verified Liveness Protocol</p>
+    </header>
+
+    <section class="card enrollment">
+      <div class="card-header">
+        <span class="step-badge">Phase 1</span>
+        <h2>Credential Enrollment</h2>
+      </div>
+      <p class="card-desc">Initialize your hardware root of trust on this device.</p>
+
+      <div class="input-group">
+        <label for="userId">User Identifier</label>
+        <div class="input-wrapper">
+          <input type="email" id="userId" value="developer@example.com" placeholder="email@example.com">
+          <button id="enrollBtn" class="primary-btn">Register as Human</button>
+        </div>
+      </div>
+      <div id="enrollStatus" class="status-indicator"></div>
+    </section>
+
+    <section class="actions-grid">
+      <div class="card protected-action">
+        <div class="card-header">
+          <span class="step-badge">Action</span>
+          <h3>Governance Vote</h3>
+        </div>
+        <p>Protected by Human-Proof middleware. Requires biometric liveness.</p>
+        <br />
+        <button id="voteBtn" class="secondary-btn mt-2" disabled>Cast Vote</button>
+      </div>
+
+      <div class="card protected-action">
+        <div class="card-header">
+          <span class="step-badge">Action</span>
+          <h3>Publish Content</h3>
+        </div>
+        <p>Guarantees no AI automation behind this post. Requires biometric liveness.</p>
+        <br />
+        <button id="postBtn" class="secondary-btn mt-2" disabled>Create Post</button>
+      </div>
+    </section>
+
+    <section class="card output-panel">
+      <div class="card-header">
+        <h2>Protocol Output</h2>
+        <button id="clearLogs" class="text-btn">Clear</button>
+      </div>
+      <pre id="logOutput" class="console-output">// Waiting for initialization...</pre>
+    </section>
+
+    <footer>
+      <p>Compatible with FaceID, Fingerprint, Windows Hello, and FIDO2 Keys.</p>
+      <div id="supportTags"></div>
+    </footer>
+  </main>
+
+  <script src="app.js" type="module"></script>
+</body>
+
+</html>

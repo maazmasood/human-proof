@@ -1,0 +1,235 @@
+:root {
+  --primary: #7f77dd;
+  --primary-glow: rgba(127, 119, 221, 0.4);
+  --bg: #0a0a0c;
+  --card-bg: rgba(255, 255, 255, 0.03);
+  --border: rgba(255, 255, 255, 0.1);
+  --text: #e0e0e0;
+  --text-dim: #888;
+  --success: #34d399;
+  --error: #f87171;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Outfit', sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+  line-height: 1.6;
+}
+
+.glass-bg {
+  position: fixed;
+  top: -10%;
+  left: -10%;
+  width: 120%;
+  height: 120%;
+  background: radial-gradient(circle at 50% 50%, #1a1a2e 0%, #0a0a10 100%);
+  z-index: -1;
+}
+
+.container {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 0 40px;
+  z-index: 1;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.logo {
+  font-size: 3rem;
+  color: var(--primary);
+  margin-bottom: 0.5rem;
+  text-shadow: 0 0 20px var(--primary-glow);
+}
+
+h1 {
+  font-size: 2.5rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.subtitle {
+  color: var(--text-dim);
+  font-size: 1.1rem;
+}
+
+.card {
+  background: var(--card-bg);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 32px;
+  margin-bottom: 24px;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.card:hover {
+  border-color: rgba(127, 119, 221, 0.3);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.step-badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  background: rgba(127, 119, 221, 0.15);
+  color: var(--primary);
+  padding: 4px 10px;
+  border-radius: 100px;
+  border: 1px solid rgba(127, 119, 221, 0.2);
+}
+
+h2, h3 {
+  font-weight: 600;
+}
+
+.card-desc {
+  color: var(--text-dim);
+  margin-bottom: 24px;
+}
+
+.input-group {
+  margin-top: 24px;
+}
+
+label {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+}
+
+.input-wrapper {
+  display: flex;
+  gap: 12px;
+}
+
+input {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 20px;
+  color: #fff;
+  font-family: 'Outfit', sans-serif;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+}
+
+input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+button {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 600;
+  padding: 14px 24px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+}
+
+.primary-btn {
+  background: var(--primary);
+  color: #fff;
+  box-shadow: 0 4px 15px var(--primary-glow);
+}
+
+.primary-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px var(--primary-glow);
+}
+
+.secondary-btn {
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  border: 1px solid var(--border);
+  width: 100%;
+}
+
+.secondary-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--primary);
+}
+
+button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.actions-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.output-panel {
+  padding-bottom: 20px;
+}
+
+.console-output {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
+  background: #000;
+  padding: 20px;
+  border-radius: 16px;
+  color: #a5b4fc;
+  overflow-x: auto;
+  min-height: 150px;
+  white-space: pre-wrap;
+}
+
+.status-indicator {
+  margin-top: 12px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.success { color: var(--success); }
+.error { color: var(--error); }
+
+.text-btn {
+  background: none;
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  padding: 4px 8px;
+}
+
+.text-btn:hover {
+  color: var(--primary);
+}
+
+footer {
+  text-align: center;
+  margin-top: 40px;
+  color: var(--text-dim);
+  font-size: 0.9rem;
+}
+
+@media (max-width: 600px) {
+  .actions-grid {
+    grid-template-columns: 1fr;
+  }
+  .input-wrapper {
+    flex-direction: column;
+  }
+}
